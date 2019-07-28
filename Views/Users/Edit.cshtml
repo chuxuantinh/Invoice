@@ -1,0 +1,131 @@
+@using System.Diagnostics
+@using InvoiceWebApp.Data
+@model InvoiceWebApp.Models.User
+@inject ApplicationDbContext _context
+
+@{
+    ViewData["Title"] = "Manage User";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+
+    AppSettings settings = null;
+    if (SessionHelper.IsExists(Context.Session, "Settings")) {
+        Debug.WriteLine("Settings exists");
+        settings = SessionHelper.Get<AppSettings>(Context.Session, "Settings");
+    }
+    if (!SessionHelper.IsExists(Context.Session, "Settings")) {
+        settings = _context.Settings.FirstOrDefault();
+        SessionHelper.Set(Context.Session, "Settings", settings);
+    }
+}
+
+@section HEAD {
+	<link rel="stylesheet" href="~/css/user.css" />
+}
+
+<div class="container" id="edit-user">
+
+    <div class="row">
+        <div class="col s12 col m12 center-align">
+            <h4 style="margin-top: 0px;">Manage User</h4>
+        </div>
+    </div>
+
+    <br />
+
+    <!--Form-->
+    <div class="row" style="margin-top: 5px;">
+        <div class="col s12 col col m10 offset-m1">
+            <form id="form" asp-controller="Users" asp-action="Edit" autocomplete="off">
+                <input type="hidden" asp-for="ID" />
+                <input type="hidden" asp-for="DebtorID" />
+
+                <fieldset>
+                    <legend>Personal Information</legend>
+
+                    <div class="row">
+                        <div class="input-field col s12 col m4 offset-m2">
+                            <i class="material-icons prefix">person_outline</i>
+                            @Html.TextBoxFor(m => m.Debtor.FirstName, new { @id = "icon_firstname", @disabled = "disabled", @class = "no-submit" })
+                            <label for="icon_firstname">First Name</label>
+                        </div>
+                        <div class="input-field col s12 col m4">
+                            <i class="material-icons prefix">person_outline</i>
+                            @Html.TextBoxFor(m => m.Debtor.LastName, new { @id = "icon_lastname", @disabled = "disabled", @class = "no-submit" })
+                            <label for="icon_lastname">Last Name</label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="input-field col s12 col m4 offset-m2">
+                            <i class="material-icons prefix">email</i>
+                            @Html.TextBoxFor(m => m.Email, new { @id = "icon_email", @disabled = "disabled", @class = "validate" })
+                            <label for="icon_email" data-error="This email address is not valid."
+							   data-success="This email address is valid.">Email</label>
+                        </div>
+                        <div class="input-field col s12 col m4">
+                            <i class="material-icons prefix">lock</i>
+                            @Html.TextBoxFor(m => m.Password, new { @id = "icon_password", type = "text" })
+                            <label for="icon_password">Password</label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <fieldset>
+                    <legend>Address</legend>
+                    <div class="row">
+                        <div class="input-field col s12 col m4 offset-m2">
+                            <i class="material-icons prefix">place</i>
+                            @Html.TextBoxFor(m => m.Debtor.Address, new { @id = "icon_address", @disabled = "disabled", @class = "no-submit" })
+                            <label for="icon_address">Address</label>
+                        </div>
+                        <div class="input-field col s12 col m4">
+                            <i class="material-icons prefix">place</i>
+                            @Html.TextBoxFor(m => m.Debtor.PostalCode, new { @id = "icon_postal", @disabled = "disabled", @class = "no-submit" })
+                            <label for="icon_postal">Postal Code</label>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="input-field col s12 col m4 offset-m2">
+                            <i class="material-icons prefix">place</i>
+                            @Html.TextBoxFor(m => m.Debtor.City, new { @id = "icon_city", @disabled = "disabled", @class = "no-submit" })
+                            <label for="icon_city">City</label>
+                        </div>
+                        <div class="input-field col s12 col m4">
+                            <i class="material-icons prefix">place</i>
+                            @Html.TextBoxFor(m => m.Debtor.Country, new { @id = "icon_country", @disabled = "disabled", @class = "no-submit" })
+                            <label for="icon_country">Country</label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="row">
+                    <div id="button-area">
+                        <button id="edit-user-btn" type="submit" value="Save"
+                                class="btn-large indigo darken-1 waves-effect waves-light">
+                            <i class="material-icons left">save</i>
+                            <span>Save</span>
+                        </button>
+
+                        <br />
+
+                        <a asp-action="Index" class="indigo-text text-darken-1">Back to Overview</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    
+    <script>
+        $("#form").submit(function() {
+            $(".no-submit").remove();
+        });
+    </script>
+}
+
+
+

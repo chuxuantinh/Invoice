@@ -1,0 +1,134 @@
+@model IEnumerable<InvoiceWebApp.Models.Company>
+
+@{
+    ViewData["Title"] = "Companies";
+}
+
+@section HEAD {
+	<link rel="stylesheet" href="~/css/company.css" />
+}
+
+<div class="container" id="company-index">
+
+    <div class="row">
+        <div class="col s12 col m12 center-align">
+            <h4 style="margin-top: 0px;">Companies</h4>
+        </div>
+    </div>
+
+    <br />
+
+    <!--Top Form-->
+    <div class="row" style="margin-top: 5px;">
+        <div class="col s12 col m12">
+            @using (Html.BeginForm()) {
+                <!--Input-->
+                <div class="input-field offset-l2 col s12 col m12 col l4" id="search-form">
+                    <input id="searchQuery" type="text" placeholder="Search...">
+                </div>
+
+                <!--Buttons-->
+                <div class="input-field col s12 col m12 col l4 center-align" id="button-field">
+                    <button id="search-company-btn" type="submit" value="Search"
+                            class="btn-large indigo darken-1 tooltipped waves-effect waves-light"
+                            data-position="top" data-delay="50" data-tooltip="Search for Company">
+                        <i class="material-icons">search</i>
+                    </button>
+
+                    <a id="add-company-btn" asp-action="Create" value="Create Company"
+                       class="btn-large indigo darken-1 tooltipped waves-effect waves-light"
+                       data-position="top" data-delay="50" data-tooltip="Create Company">
+                        <i class="material-icons">add_box</i>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="divider" style="background-color:#c2c2c2;margin-bottom:35px;"></div>
+
+    <div class="row">
+        <div class="col s12 col m12">
+            <table class="responsive-table bordered highlight">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.Raw("Company ID")                        
+                        </th>
+                        <th>
+                            @Html.ActionLink("Company Name", "Index", new { sortOrder = ViewBag.CompanyNameSortParm })
+                        </th>
+                        <th>
+                            @Html.ActionLink("Email", "Index", new { sortOrder = ViewBag.EmailSortParm })
+                        </th>
+                        <th>
+                            @Html.ActionLink("City", "Index", new { sortOrder = ViewBag.CitySortParm })
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Country)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model) {
+                        <tr>
+                            <td>
+                                <a class="tooltipped" asp-action="Details" asp-route-id="@item.CompanyID"
+                                   data-position="top" data-delay="50" data-tooltip="View Details">
+                                    @Html.DisplayFor(modelItem => item.RegNumber)
+                                </a>
+                            </td>
+                            <td>
+                                <a class="tooltipped" asp-action="Details" asp-route-id="@item.CompanyID"
+                                   data-position="top" data-delay="50" data-tooltip="View Details">
+                                    @Html.DisplayFor(modelItem => item.CompanyName)
+                                </a>
+                            </td>
+                            <td>
+                                <a class="tooltipped" asp-action="Details" asp-route-id="@item.CompanyID"
+                                   data-position="top" data-delay="50" data-tooltip="View Details">
+                                    @Html.DisplayFor(modelItem => item.Email)
+                                </a>
+                            </td>
+                            <td>
+                                <a class="tooltipped" asp-action="Details" asp-route-id="@item.CompanyID"
+                                   data-position="top" data-delay="50" data-tooltip="View Details">
+                                    @Html.DisplayFor(modelItem => item.City)
+                                </a>
+                            </td>
+                            <td>
+                                <a class="tooltipped" asp-action="Details" asp-route-id="@item.CompanyID"
+                                   data-position="top" data-delay="50" data-tooltip="View Details">
+                                    @Html.DisplayFor(modelItem => item.Country)
+                                </a>
+                            </td>
+                            <td>
+                                <a class="tooltipped" asp-action="Edit" asp-route-id="@item.CompanyID"
+                                   data-position="top" data-delay="50" data-tooltip="Edit Company"
+                                   style="padding-right: 2px;">
+                                    <i class="material-icons green-text">edit</i>
+                                </a>
+                                <a class="tooltipped" asp-action="Delete" asp-route-id="@item.CompanyID"
+                                   data-position="right" data-delay="50" data-tooltip="Remove Company"
+                                   style="padding-left: 2px;">
+                                    <i class="material-icons red-text">delete</i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+@section Scripts{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $('.tooltipped').tooltip({ delay: 50 });
+        });
+    </script>
+}

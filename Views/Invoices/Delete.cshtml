@@ -1,0 +1,169 @@
+@model InvoiceWebApp.Models.Invoice
+
+@{
+    ViewData["Title"] = "Remove Invoice";
+}
+
+@section HEAD {
+	<link rel="stylesheet" href="~/css/invoice.css" />
+}
+
+<div class="container" id="remove-invoice">
+
+    <div class="row">
+        <div class="col s12 col m12 center-align">
+            <h4 style="margin-top: 0px;">Remove Invoice</h4>
+        </div>
+    </div>
+
+    <br />
+
+    <!--Form-->
+    <div class="row" style="margin-top: 5px;">
+        <div class="col s12 col m12 col l12">
+            <form asp-controller="Invoices" asp-action="Delete" onsubmit="return confirm('Are you sure you want to delete this invoice?');">
+                <input type="hidden" asp-for="InvoiceNumber" />
+
+                <div class="row">
+                    <div class="col s12 col m12 col l10 offset-l1">
+                        <fieldset>
+                            <legend>Invoice Information</legend>
+
+                            <div class="row" id="debtor-row">
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">perm_identity</i>
+                                    @Html.DropDownListFor(m => m.DebtorID, (SelectList)ViewBag.DebtorID,
+                                                "Select a debtor", new { @id = "select_debtor", @disabled = "disabled" })
+                                    <label for="select_debtor">Choose Debtor</label>
+                                </div>
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">business</i>
+                                    @Html.DropDownListFor(m => m.CompanyID, (SelectList)ViewBag.CompanyID,
+                                                "Select a company", new { @id = "select_company", @disabled = "disabled" })
+                                    <label for="select_company">Choose Company</label>
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+                            <br />
+
+                            <div class="row">
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">today</i>
+                                    <input asp-for="CreatedOn" id="icon_created" disabled />
+                                    <label for="icon_created" class="active">Invoice Date</label>
+                                </div>
+
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">today</i>
+                                    <input asp-for="ExpirationDate" id="icon_expired" disabled />
+                                    <label for="icon_expired" class="active">Invoice Expiration Date</label>
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+                            <br />
+
+                            <div class="row" id="type-row">
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">save</i>
+                                    <select id="select_type" asp-for="Type" disabled>
+                                        <option value="Concept">Concept</option>
+                                        <option value="Final">Final</option>
+                                    </select>
+                                    <label for="select_type">Save As</label>
+                                </div>
+
+                                <div class="input-field col s12 col m12 col l6"></div>
+                            </div>
+
+                            <div class="divider"></div>
+                            <br />
+
+                            <div class="row">
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">exposure_neg_2</i>
+                                    <input id="icon_discount" asp-for="Discount" disabled />
+                                    <label for="icon_discount" class="active">Discount (%)</label>
+                                </div>
+
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">euro_symbol</i>
+                                    <input id="total" name="total" type="text" readonly />
+                                    <label id="total-label" for="total" class="active">Total</label>
+                                </div>
+                            </div>
+
+							<div class="row">
+								<div class="input-field col s12 col m12 col l6">
+									<i class="material-icons prefix">comment</i>
+									<textarea id="icon_comment" class="materialize-textarea" asp-for="Comments" disabled></textarea>
+									<label for="icon_comment">Comments</label>
+								</div>
+
+								<div class="input-field col s12 col m12 col l6">
+								</div>
+							</div>
+
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col s12 col m12 col l10 offset-l1">
+                        <fieldset>
+                            <legend>Products</legend>
+
+                            <div id="products" style="max-height: 300px;overflow-y:scroll;overflow-x:hidden;">
+                            </div>
+
+                            <br />
+                            <div class="divider"></div>
+
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div id="button-area">
+                        <button id="change-invoice-btn" type="submit" value="Remove"
+                                class="btn-large indigo darken-1 waves-effect waves-light">
+                            <i class="material-icons left">delete</i>
+                            <span>Remove</span>
+                        </button>
+
+                        <br />
+
+                        <a asp-action="Index" class="indigo-text text-darken-1">Back to Overview</a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        var totalAmount = "@(ViewBag.Total)";
+        var pids = new Array();
+        var amounts = new Array();
+        var pnames = new Array();
+
+        @foreach(var pid in ViewBag.PIDs)
+        {
+           @:pids.push('@(pid)');
+        }
+        @foreach(var amount in ViewBag.Amounts)
+        {
+            @:amounts.push('@(amount)');
+        }
+        @foreach(var name in ViewBag.Names)
+        {
+            @:pnames.push('@(name)');
+        }
+</script>
+<script src="~/js/invoice/view-invoice.js"></script>
+}

@@ -1,0 +1,124 @@
+@model IEnumerable<InvoiceWebApp.Models.Product>
+
+@{
+    ViewData["Title"] = "Products";
+}
+
+@section HEAD {
+	<link rel="stylesheet" href="~/css/product.css" />
+}
+
+<div class="container" id="product-index">
+
+    <div class="row">
+        <div class="col s12 col m12 center-align">
+            <h4 style="margin-top: 0px;">Products</h4>
+        </div>
+    </div>
+
+    <br />
+
+    <!--Top Form-->
+    <div class="row" style="margin-top: 5px;">
+        <div class="col s12 col m12">
+            @using (Html.BeginForm()) {
+                <!--Spacer-->
+                <div class="col l2"></div>
+
+                <!--Input-->
+                <div class="input-field col s12 col m12 col l4" id="search-form">
+                    <input id="searchQuery" type="text" placeholder="Search...">
+                </div>
+
+                <!--Buttons-->
+                <div class="input-field col s12 col m12 col l4 center-align" id="button-field">
+                    <button id="search-product-btn" type="submit" value="Search"
+                            class="btn-large indigo darken-1 tooltipped waves-effect waves-light"
+                            data-position="top" data-delay="50" data-tooltip="Search for Product">
+                        <i class="material-icons">search</i>
+                    </button>
+
+                    <a id="add-product-btn" asp-action="Create" value="Create Product"
+                       class="btn-large indigo darken-1 tooltipped waves-effect waves-light"
+                       data-position="top" data-delay="50" data-tooltip="Create Product">
+                        <i class="material-icons">add_box</i>
+                    </a>
+                </div>
+
+                <!--Spacer-->
+                <div class="col l2"></div>
+            }
+        </div>
+    </div>
+
+    <div class="divider" style="background-color:#c2c2c2;margin-bottom:35px;"></div>
+
+    <div class="row">
+        <div class="col s12 col m12">
+            <table class="responsive-table bordered highlight">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.ActionLink("Name", "Index", new { sortOrder = ViewBag.NameSortParm })
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.Description)
+                        </th>
+                        <th>
+                            @Html.ActionLink("Price", "Index", new { sortOrder = ViewBag.PriceSortParm })
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.VAT)
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model) {
+                        <tr>
+                            <td>
+                                <a class="tooltipped" asp-action="Details" asp-route-id="@item.ProductID"
+                                   data-position="top" data-delay="50" data-tooltip="View Details">
+                                    @Html.DisplayFor(modelItem => item.Name)
+                                </a>
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Description)
+                            </td>
+                            <td>
+                                @Html.Raw(String.Format("{0:C2}", item.Price))
+                            </td>
+                            <td>
+                                @Html.Raw(String.Format("{0}%", item.VAT))
+                            </td>
+                            <td>
+                                <a class="tooltipped" asp-action="Edit" asp-route-id="@item.ProductID"
+                                   data-position="top" data-delay="50" data-tooltip="Edit Product"
+                                   style="padding-right: 2px;">
+                                    <i class="material-icons green-text">edit</i>
+                                </a>
+                                <a class="tooltipped" asp-action="Delete" asp-route-id="@item.ProductID"
+                                   data-position="right" data-delay="50" data-tooltip="Remove Product"
+                                   style="padding-left: 2px;">
+                                    <i class="material-icons red-text">delete</i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+
+</div>
+
+@section Scripts{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $('.tooltipped').tooltip({ delay: 50 });
+        });
+    </script>
+}

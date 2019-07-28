@@ -1,0 +1,170 @@
+@model IEnumerable<InvoiceWebApp.Models.Invoice>
+@inject ApplicationDbContext _context
+@using System.Diagnostics
+@using InvoiceWebApp.Data
+@using InvoiceWebApp.Models
+
+@{
+    ViewData["Title"] = "Invoices";
+
+    AppSettings settings = null;
+    if (SessionHelper.IsExists(Context.Session, "Settings")) {
+        settings = SessionHelper.Get<AppSettings>(Context.Session, "Settings");
+    }
+    if (!SessionHelper.IsExists(Context.Session, "Settings")) {
+        settings = _context.Settings.FirstOrDefault();
+        SessionHelper.Set(Context.Session, "Settings", settings);
+    }
+}
+
+@section HEAD {
+	<link rel="stylesheet" href="~/css/invoice.css" />
+}
+
+<div class="container" id="invoice-index">
+
+    <div class="row">
+        <div class="col s12 col m12 center-align">
+            <h4 style="margin-top: 0px;">Invoices</h4>
+        </div>
+    </div>
+
+    <br />
+
+    <!--Top Form-->
+    <div class="row" style="margin-top: 5px;">
+        <div class="col s12 col m12 col l12">
+            @using (Html.BeginForm()) {
+                <!--Input-->
+                <div class="input-field offset-l2 col s12 col m12 col l4" id="search-form">
+                    <input id="searchQuery" type="text" placeholder="Search...">
+                </div>
+
+                <!--Buttons-->
+                <div class="input-field col s12 col m12 col l4 center-align" id="button-field">
+                    <button id="search-invoice-btn" type="submit" value="Search"
+                            class="btn-large indigo darken-1 tooltipped waves-effect waves-light"
+                            data-position="top" data-delay="50" data-tooltip="Search for Invoice">
+                        <i class="material-icons">search</i>
+                    </button>
+
+                    <a id="add-invoice-btn" asp-action="Create" value="Create Invoice"
+                       class="btn-large indigo darken-1 tooltipped waves-effect waves-light"
+                       data-position="top" data-delay="50" data-tooltip="Create Invoice">
+                        <i class="material-icons">add_box</i>
+                    </a>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="divider" style="background-color:#c2c2c2;margin-bottom:35px;"></div>
+
+    <div class="row">
+        <div class="col s12 col m12 col l12">
+            <table class="responsive-table bordered highlight">
+                <thead>
+                    <tr>
+                        <th>
+                            @Html.ActionLink("Invoice No", "Index", new { sortOrder = ViewBag.NumberSortParm })
+                        </th>
+                        <th>
+                            @Html.ActionLink("Debtor", "Index", new { sortOrder = ViewBag.DebtorSortParm })
+                        </th>
+                        <th>
+                            @Html.DisplayNameFor(model => model.CreatedOn)
+                        </th>
+                        <th>
+                            @Html.Raw("Status")
+                        </th>
+                        <th>
+                            @Html.Raw("<b>Paid</b>")
+                        </th>
+                        <th>
+                            @Html.ActionLink("Total", "Index", new { sortOrder = ViewBag.TotalSortParm })
+                        </th>
+                        <th>
+                            @Html.Raw("Products")
+                        </th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model) {
+                        <tr>
+                            <td>
+                                <a class="tooltipped" asp-action="Details" asp-route-id="@item.InvoiceNumber"
+                                   data-position="top" data-delay="50" data-tooltip="View Details">
+                                    @Html.Raw(settings.Prefix + "-")@Html.DisplayFor(modelItem => item.InvoiceNumber)
+                                </a>
+                            </td>
+                            <td>
+                                @if (item.DebtorID != null || !String.IsNullOrEmpty(item.DebtorID.ToString())){
+		                             @Html.DisplayFor(modelItem => item.Debtor.FullName)
+                                }
+
+                                @if (item.CompanyID != null || !String.IsNullOrEmpty(item.CompanyID.ToString())) {
+                                    @Html.DisplayFor(modelItem => item.Company.CompanyName)
+                                }
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.CreatedOn)
+                            </td>
+                            <td>
+                                @Html.DisplayFor(modelItem => item.Type)
+                            </td>
+                            <td>
+								@if (DateTime.Now >= item.ExpirationDate)
+								{
+									@Html.Raw("<span style=color:red;font-weight:bold;>"
+											+ "Late</span>")
+								} else if (item.Paid == true) {
+                                    @Html.Raw("<span style=color:green;font-weight:bold;>Yes</span>")
+								} else {
+                                    @Html.Raw("<b>No<b>")
+								}
+                            </td>
+                            <td>
+                                @Html.Raw(String.Format("{0:C2}", item.Total))
+                            </td>
+                            <td>
+                                @foreach (var items in item.InvoiceItems) {
+                                    Product product = items.Product;
+                                    @Html.Raw(items.Amount + "x " + product.Name + "<br />")
+                                }
+                            </td>
+                            <td>
+                                <a class="tooltipped" asp-action="Download" asp-route-id="@item.InvoiceNumber"
+                                   data-position="top" data-delay="50" data-tooltip="Download PDF"
+                                   style="padding-right: 2px;">
+                                    <i class="material-icons light-green-text">file_download</i>
+                                </a>
+                                <a class="tooltipped" asp-action="Edit" asp-route-id="@item.InvoiceNumber"
+                                   data-position="top" data-delay="50" data-tooltip="Edit Invoice"
+                                   style="padding-right: 2px;">
+                                    <i class="material-icons green-text">edit</i>
+                                </a>
+                                <a class="tooltipped" asp-action="Delete" asp-route-id="@item.InvoiceNumber"
+                                   data-position="right" data-delay="50" data-tooltip="Remove Invoice"
+                                   style="padding-left: 2px;">
+                                    <i class="material-icons red-text">delete</i>
+                                </a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts{
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+
+    <script>
+        $(document).ready(function () {
+            $('.tooltipped').tooltip({ delay: 50 });
+        });
+    </script>
+}

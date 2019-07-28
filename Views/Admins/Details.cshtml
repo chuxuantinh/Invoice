@@ -1,0 +1,79 @@
+@model InvoiceWebApp.Models.Admin
+
+@{
+    ViewData["Title"] = "Administrator Details";
+}
+
+@section HEAD {
+	<link rel="stylesheet" href="~/css/admin.css" />
+}
+
+<div class="container" id="details-admin">
+
+    <div class="row">
+        <div class="col s12 col m12 center-align">
+            <h4 style="margin-top: 0px;">Administrator Details</h4>
+        </div>
+    </div>
+
+    <br />
+
+    <!--Form-->
+    <div class="row" style="margin-top: 5px;">
+        <div class="col s12 col m10 offset-m1 col l10 offset-l1">
+            <form>
+
+                <fieldset>
+                    <legend>Personal Information</legend>
+
+                    <div class="row">
+                        <div class="input-field col s12 col m12 col l6">
+                            <i class="material-icons prefix">person_outline</i>
+                            <input id="icon_prefix" type="text" asp-for="FirstName" disabled>
+                            <label for="icon_prefix">First Name</label>
+                        </div>
+                        <div class="input-field col s12 col m12 col l6">
+                            <i class="material-icons prefix">person_outline</i>
+                            <input id="icon_prefix" type="text" asp-for="LastName" disabled>
+                            <label for="icon_prefix">Last Name</label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <br />
+
+                <fieldset>
+                    <legend>Login</legend>
+
+                    <div class="row">
+                        <div class="input-field col s12 col m12 col l6">
+                            <i class="material-icons prefix">email</i>
+                            <input id="icon_prefix" type="email" asp-for="Email" class="validate" disabled>
+                            <label for="icon_prefix">Email</label>
+                        </div>
+                        <div class="input-field col s12 col m12 col l6">
+                            <i class="material-icons prefix">lock</i>
+                            <input id="icon_prefix" type="password" asp-for="Password" disabled>
+                            <label for="icon_prefix">Password</label>
+                        </div>
+                    </div>
+                </fieldset>
+
+                <div class="row">
+                    <div id="button-area">
+                        <button id="change-admin-btn" type="submit" value="Edit"
+                                class="btn-large indigo darken-1 waves-effect waves-light"
+                                asp-controller="Admins" asp-action="Edit" asp-route-id="@Model.AdminID">
+                            <i class="material-icons left">edit</i>
+                            <span>Edit</span>
+                        </button>
+
+                        <br />
+
+                        <a asp-action="Index" class="indigo-text text-darken-1">Back to Overview</a>
+                    </div>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

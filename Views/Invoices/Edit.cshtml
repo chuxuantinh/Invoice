@@ -1,0 +1,296 @@
+@using static InvoiceWebApp.Models.AppSettings
+@model InvoiceWebApp.Models.Invoice
+
+@{
+	ViewData["Title"] = "Manage Invoice";
+
+	AppSettings settings = null;
+	if (SessionHelper.IsExists(Context.Session, "Settings")) {
+		settings = SessionHelper.Get<AppSettings>(Context.Session, "Settings");
+	}
+}
+
+@section HEAD {
+	<link rel="stylesheet" href="~/css/invoice.css" />
+}
+
+<div class="container" id="edit-invoice">
+
+    <div class="row">
+        <div class="col s12 col m12 center-align">
+            <h4 style="margin-top: 0px;">Manage Invoice</h4>
+        </div>
+    </div>
+
+    <br />
+
+    <!--Form-->
+    <div class="row" style="margin-top: 5px;">
+        <div class="col s12 col m12 col l12">
+            <form id="form" asp-controller="Invoices" asp-action="Edit">
+                <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+                <input type="hidden" asp-for="InvoiceNumber" />
+
+                <div class="row">
+                    <div class="col s12 col m12 col l10 offset-l1">
+                        <fieldset>
+                            <legend>Invoice Information</legend>
+
+                            <div class="row" id="debtor-row">
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">person</i>
+                                    @Html.DropDownListFor(m => m.DebtorID, (SelectList) ViewBag.DebtorID,
+                                                "Choose debtor", new { @id = "select_debtor", @class = "chosen-select" })
+									<label for="select_debtor" class="active">Choose Debtor</label>
+                                </div>
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">business</i>
+                                    @Html.DropDownListFor(m => m.CompanyID, (SelectList) ViewBag.CompanyID,
+                                                "Choose company", new { @id = "select_company", @class = "chosen-select" })
+									<label for="select_company" class="active">Choose Company</label>
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+                            <br />
+
+                            <div class="row">
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">today</i>
+                                    <input asp-for="CreatedOn" id="icon_created" />
+                                    <label for="icon_created" class="active">Invoice Date</label>
+                                </div>
+
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">today</i>
+                                    <input asp-for="ExpirationDate" id="icon_expired" />
+                                    <label for="icon_expired" class="active">Invoice Expiration Date</label>
+                                </div>
+                            </div>
+
+                            <div class="divider"></div>
+                            <br />
+
+                            <div class="row" id="type-row">
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">save</i>
+                                    <select id="select_type" asp-for="Type">
+                                        <option value="Concept">Concept</option>
+                                        <option value="Final">Final</option>
+                                    </select>
+                                    <label for="select_type">Save As</label>
+                                </div>
+
+                                <div class="input-field col s12 col m12 col l6"></div>
+                            </div>
+
+                            <div class="divider"></div>
+                            <br />
+
+                            <div class="row">
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">exposure_neg_2</i>
+                                    @if (Model.Discount >= 0) {
+                                        <input id="icon_discount" min="0" asp-for="Discount" />
+                                    } else {
+                                        <input id="icon_discount" value="0" min="0" asp-for="Discount" />
+                                    }
+                                    <label for="icon_discount" class="active">Discount (%)</label>
+                                </div>
+
+                                <div class="input-field col s12 col m12 col l6">
+                                    <i class="material-icons prefix">euro_symbol</i>
+                                    <input id="total" name="total" type="text" readonly />
+                                    <label id="total-label" for="total" class="active">Total</label>
+                                </div>
+                            </div>
+
+							<div class="row">
+								<div class="input-field col s12 col m12 col l6">
+									<i class="material-icons prefix">comment</i>
+									<textarea id="icon_comment" class="materialize-textarea" asp-for="Comments"></textarea>
+									<label for="icon_comment">Comments</label>
+								</div>
+
+								<div class="input-field col s12 col m12 col l6">
+								</div>
+							</div>
+
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div class="col s12 col m12 col l10 offset-l1">
+                        <fieldset>
+                            <legend>Products</legend>
+
+                            <div id="products" style="height: auto;max-height: 300px;overflow-y:scroll;overflow-x:hidden;">
+                                <!--Begin of product-control-->
+                                <div id="product-control" class="row">
+                                    <div class="input-field col s12 col m5 col l5">
+                                        @Html.DropDownList("CategoryName", (SelectList) ViewBag.Categories, "Select a category...", new { @id = "_category" })
+                                    </div>
+
+                                    <div class="input-field col s12 col m5 col l5">
+                                        <select id="_product">
+                                            <option value="">Select a product...</option>
+                                        </select>
+                                    </div>
+
+                                    <div class="input-field col s8 col m1 col l1">
+                                        <input id="_amount" type="number" placeholder="Qnt." min="0" />
+                                    </div>
+
+                                    <div class="input-field col s4 col m1 col l1">
+                                        <a href="#!" id="delete-row-btn"
+                                           class="btn red darken-1 waves-effect waves-light">
+                                            <i class="material-icons">remove</i>
+                                        </a>
+                                    </div>
+                                </div>
+                                <!--End of product-control-->
+                            </div>
+
+                            <br />
+                            <div class="divider"></div>
+                            <br />
+
+                            <a href="#!" id="add-row-btn" class="btn light-green waves-effect waves-light">
+                                <i class="material-icons">add</i>
+                            </a>
+                        </fieldset>
+                    </div>
+                </div>
+
+                <div class="row">
+                    <div id="button-area">
+                        <button id="edit-invoice-btn" type="button" value="Save"
+                                class="btn-large indigo darken-1 waves-effect waves-light">
+                            <i class="material-icons left">save</i>
+                            <span>Save</span>
+                        </button>
+
+                        <br />
+
+                        <a asp-action="Index" class="indigo-text text-darken-1">Back to Overview</a>
+                    </div>
+                </div>
+
+            </form>
+        </div>
+    </div>
+
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        //Variables
+        var totalAmount = "@(ViewBag.Total)";
+        var ajaxURL1 = '@Url.Action("GetCategories")';
+		var ajaxURL2 = '@Url.Action("GetProducts")';
+		var invoiceCycle = '@settings.InvoiceCycle';
+        var count = 1;
+        var isDebtor = false;
+        var isCompany = false;
+
+        //-----------------------------------------------------------------------------------------
+        //Disable one of the dropdowns
+        @{
+            if ( Model.DebtorID != null )
+            {
+                @: isDebtor = true;
+                @: isCompany = false;
+            } else if ( Model.CompanyID != null )
+            {
+                @: isDebtor = false;
+                @: isCompany = true;
+            } else
+            {
+                @: isDebtor = false;
+                @: isCompany = false;
+            }
+        }
+
+        if (isDebtor == true) {
+            $("#debtor-row #select_company").prop("disabled", true);
+            $("#debtor-row #select_company").trigger("chosen:updated");
+        }
+        if (isCompany == true) {
+            $("#debtor-row #select_debtor").prop("disabled", true);
+            $("#debtor-row #select_debtor").trigger("chosen:updated");
+        }
+    </script>
+    <link rel="stylesheet" href="~/css/chosen.css" />
+    <script src="~/js/chosen.jquery.js" type="text/javascript"></script>
+    <script src="~/js/invoice/edit-invoice.js" type="text/javascript"></script>
+    <script>
+        //Create new product rows based on the products selected when creating this invoice
+        function setRows() {
+            var categories = new Array();
+            var pids = new Array();
+            var amounts = new Array();
+            var pnames = new Array();
+            var start = true;
+
+            @foreach(var category in ViewBag.Cats)
+            {
+                @:categories.push('@(category)');
+            }
+            @foreach(var pid in ViewBag.PIDs)
+            {
+                @:pids.push('@(pid)');
+            }
+            @foreach(var amount in ViewBag.Amounts)
+            {
+                @:amounts.push('@(amount)');
+            }
+            @foreach(var name in ViewBag.Names)
+            {
+                @:pnames.push('@(name)');
+            }
+
+            for (var i = 0; i < amounts.length; i++) {
+                var amount = amounts[i];
+                var pid = pids[i];
+                var pname = pnames[i];
+                var cat = categories[i];
+
+                if (start == true) {
+                    //Set category
+                    $("#products #product-control #_category").val(cat);
+                    $("#products #product-control #_category").material_select();
+                    $("#products #product-control #_category").change();
+
+                    //Set product
+                    $("#products #product-control #_product").val(pid);
+                    $("#products #product-control #_product").material_select();
+                    $("#products #product-control #_product").change();
+
+                    //Set amount
+                    $("#products #product-control #_amount").val(amount);
+
+                    start = false
+                } else {
+                    addRow();
+
+                    //Set category
+                    $("#products #product-row:nth-child(" + count + ") #_category").val(cat);
+                    $("#products #product-row:nth-child(" + count + ") #_category").material_select();
+                    $("#products #product-row:nth-child(" + count + ") #_category").change();
+
+                    //Set amount
+                    $("#products #product-row:nth-child(" + count + ") #_amount").val(amount);
+
+                    //Set product
+                    setTimeout(function () {
+                        $("#products #product-row:nth-child(" + count + ") #_product").val(pid);
+                        $("#products #product-row:nth-child(" + count + ") #_product").material_select();
+                        $("#products #product-row:nth-child(" + count + ") #_product").change();
+                    }, 1000);
+                }
+            }
+        }
+    </script>
+}
